@@ -1,0 +1,69 @@
+# This ci config file runs in two stages:
+# - First a code analysis is performed with both, flake8
+#   and pylint. This should identify potential bugs and
+#   inefficient code.
+#   flake8: https://pypi.org/project/flake8/
+#   pylint: https://www.pylint.org/
+# - The second stage runs the test suite with Python's
+#   built in unittest library.
+#   unittest: https://docs.python.org/3/library/unittest.html
+#
+# Inspiration came from here:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
+image: python:3.9
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  # Setup ssh connection to be able to download and install 'de4l-geodata'.
+  # See: https://docs.gitlab.com/ee/ci/ssh_keys/
+  - 'command -v ssh-agent >/dev/null || ( yum update -y && yum install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -H git.informatik.uni-leipzig.de >> ~/.ssh/known_hosts
+
+  - python --version # Print Python version for debugging
+  - pip install --upgrade pip
+  - pip --version # Print pip version for debugging
+  - pip install poetry
+  - poetry config virtualenvs.create false
+  - poetry install --extras torch
+
+stages:
+  - code analysis
+  - test
+
+flake8:
+  stage: code analysis
+  allow_failure: true
+  script:
+      # Check for max line length of 120. Use Black with option -l 120 to check this locally.
+    - poetry run flake8 --max-line-length=120 */*.py
+
+pylint:
+  stage: code analysis
+  allow_failure: true
+  script:
+      # Run pylint with line length warnings (C0301) disabled.
+    - poetry run pylint -d C0301 */*.py
+
+unittest:
+  stage: test
+  script:
+    - echo "Running tests"
+    - poetry run python -m unittest discover -v
