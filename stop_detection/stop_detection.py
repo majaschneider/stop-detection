@@ -3,8 +3,8 @@ An algorithm to detect stops based on time- and space-based clustering. The impl
 approach of Primault, V. (2018) Practically Preserving and Evaluating Location Privacy.
 """
 
-from de4l_geodata.geodata import point as pt
-from de4l_geodata.geodata import route as rt
+from geodata.geodata import point as pt
+from geodata.geodata import route as rt
 import numpy as np
 
 

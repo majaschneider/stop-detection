@@ -4,5 +4,5 @@ Algorithm to detect places of interest (POI) in trajectories, according to Prima
 
 Install this package via pip:
 ```bash
-pip install git+ssh://git@git.informatik.uni-leipzig.de/scads/de4l/privacy/de4l-stop-detection.git
+pip install git+https://github.com/majaschneider/stop-detection.git
 ```

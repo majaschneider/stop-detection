@@ -3,13 +3,13 @@
 
 import unittest
 
-from de4l_geodata.geodata import route as rt
-from de4l_geodata.geodata import point as pt
-from de4l_geodata.geodata import point_t as ptt
+from geodata.geodata import route as rt
+from geodata.geodata import point as pt
+from geodata.geodata import point_t as ptt
 import pandas as pd
 import numpy as np
 
-from de4l_stop_detection.stop_detection import union, intersection, calculate_centroid, extract_pois
+from stop_detection.stop_detection import union, intersection, calculate_centroid, extract_pois
 
 
 def move_(coordinates, x_delta, y_delta):
